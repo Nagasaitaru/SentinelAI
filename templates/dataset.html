@@ -1,0 +1,48 @@
+
+{% extends "base.html" %}
+{% block title %}Dataset{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <div><div class="eyebrow">FIXED PROJECT DATASET</div><h1>DrDoS DNS + R2L Dataset</h1>
+  <p>This dashboard uses the bundled project dataset only. No manual CSV upload is required.</p></div>
+  <button class="primary" onclick="analyzeDataset()">Analyze Dataset →</button>
+</section>
+<section class="stat-grid four">
+  <div class="stat-card"><div class="card-label">DATASET ROWS</div><div id="rows" class="stat-value">--</div></div>
+  <div class="stat-card"><div class="card-label">FEATURES</div><div id="features" class="stat-value">--</div></div>
+  <div class="stat-card"><div class="card-label">BENIGN</div><div id="benign" class="stat-value">--</div></div>
+  <div class="stat-card"><div class="card-label">ATTACK</div><div id="attack" class="stat-value">--</div></div>
+</section>
+<section class="panel">
+  <div class="panel-head"><div><h2>Dataset Information</h2><p id="datasetName">Loading...</p></div></div>
+  <div id="featureList" class="feature-list"></div>
+</section>
+<section class="panel">
+  <div class="panel-head"><div><h2>Dataset Predictions</h2><p>Rows are sampled from the bundled dataset and sent directly to the trained ensemble.</p></div></div>
+  <div id="results" class="table-wrap"><div class="empty">Click “Analyze Dataset” to run predictions.</div></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadDataset(){
+ const d=await api('/api/dataset-info');
+ setText('rows', d.rows.toLocaleString());
+ setText('features', d.features);
+ setText('benign', d.labels.BENIGN.toLocaleString());
+ setText('attack', (d.labels.DrDoS_DNS+d.labels.R2L).toLocaleString());
+ setText('datasetName', d.filename + ' • ' + d.rows.toLocaleString() + ' rows');
+ document.getElementById('featureList').innerHTML=d.feature_names.map((x,i)=>
+   `<span><b>${String(i+1).padStart(2,'0')}</b>${x}</span>`).join('');
+}
+async function analyzeDataset(){
+ try{
+   const d=await api('/api/dataset-sample');
+   document.getElementById('results').innerHTML=`<table>
+   <thead><tr><th>ROW</th><th>ORIGINAL LABEL</th><th>MODEL RESULT</th><th>ATTACK PROBABILITY</th><th>RISK</th><th>TRUST</th></tr></thead>
+   <tbody>${d.results.map(x=>`<tr><td>${x.row}</td><td>${x.original_label}</td><td><span class="badge ${x.prediction==='Attack'?'attack':'normal'}">${x.prediction}</span></td><td>${x.attack_probability}%</td><td>${x.risk}</td><td>${x.trust_score}%</td></tr>`).join('')}</tbody></table>`;
+   toast('Dataset analysis completed');
+ }catch(e){toast(e.message,true)}
+}
+loadDataset();
+</script>
+{% endblock %}

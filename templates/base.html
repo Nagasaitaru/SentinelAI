@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SentinelAI | Intrusion Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+<meta name="sentinelai-version" content="SentinelAI v2 - fixed PKL feature schema"></head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">◈</div>
+      <div>
+        <div class="brand-name">Sentinel<span>AI</span></div>
+        <div class="brand-sub">INTRUSION DETECTION</div>
+      </div>
+    </div>
+
+    <nav>
+      <a class="{{ 'active' if active=='dashboard' else '' }}" href="/">▦ <span>Dashboard</span></a>
+      <a class="{{ 'active' if active=='live' else '' }}" href="/live-detection">⌁ <span>Live Detection</span></a>
+      <a class="{{ 'active' if active=='prediction' else '' }}" href="/prediction">◎ <span>Prediction</span></a>
+      <a class="{{ 'active' if active=='performance' else '' }}" href="/model-performance">▥ <span>Model Performance</span></a>
+      <a class="{{ 'active' if active=='analytics' else '' }}" href="/analytics">⌁ <span>Analytics</span></a>
+      <a class="{{ 'active' if active=='dataset' else '' }}" href="/dataset">▤ <span>Dataset</span></a>
+      <a class="{{ 'active' if active=='history' else '' }}" href="/detection-history">◷ <span>Detection History</span></a>
+      <a class="{{ 'active' if active=='about' else '' }}" href="/about">ⓘ <span>About</span></a>
+      <a class="{{ 'active' if active=='settings' else '' }}" href="/settings">⚙ <span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="system-dot"></div>
+      <div>
+        <div class="small-label">System Online</div>
+        <div class="mono tiny">/api: 200</div>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="avatar">S</div>
+      <div>
+        <div class="admin-name">Security Admin</div>
+        <div class="mono tiny">local dashboard</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SECURITY OVERVIEW</div>
+        <div class="top-title">{{ self.title() }}</div>
+        <div class="top-sub">Real-time network traffic analysis & intrusion detection</div>
+      </div>
+      <div class="top-status">
+        <span class="status-pill" id="apiStatus">● API ONLINE</span>
+        <span class="mono tiny">LAST UPDATE <span id="lastUpdate">--:--:--</span></span>
+        <button class="icon-btn" onclick="location.reload()">↻</button>
+      </div>
+    </header>
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

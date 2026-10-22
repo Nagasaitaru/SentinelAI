@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<section class="page-intro"><div><div class="eyebrow">SYSTEM CONFIGURATION</div><h1>Settings</h1><p>Read-only deployment configuration for this starter build.</p></div></section>
+<section class="panel settings-list">
+  <div><span>Authentication</span><b>Disabled — login-free dashboard</b></div>
+  <div><span>Ensemble strategy</span><b>Soft voting</b></div>
+  <div><span>Decision threshold</span><b>0.50</b></div>
+  <div><span>Base learners</span><b>RF + ET + LR</b></div>
+  <div><span>API endpoint</span><b>/api/predict</b></div>
+</section>
+{% endblock %}

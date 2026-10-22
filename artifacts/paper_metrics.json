@@ -1,0 +1,40 @@
+{
+  "source": "Uploaded IEEE paper Table II",
+  "note": "Reported benchmark values from the paper; use metrics.json for newly trained/deployed model results.",
+  "Logistic Regression": {
+    "accuracy": 0.988267,
+    "f1": 0.994098,
+    "recall": 0.988265,
+    "roc_auc": 0.999600
+  },
+  "SVM": {
+    "accuracy": 0.992000,
+    "f1": 0.995983,
+    "recall": 0.991999,
+    "roc_auc": 0.999867
+  },
+  "KNN": {
+    "accuracy": 0.999467,
+    "f1": 0.999733,
+    "recall": 0.999467,
+    "roc_auc": 0.999867
+  },
+  "Naive Bayes": {
+    "accuracy": 0.999733,
+    "f1": 0.999867,
+    "recall": 0.999733,
+    "roc_auc": 1.000000
+  },
+  "Random Forest": {
+    "accuracy": 0.998000,
+    "f1": 0.998999,
+    "recall": 0.998000,
+    "roc_auc": 0.999333
+  },
+  "Extra Trees": {
+    "accuracy": 0.964400,
+    "f1": 0.981875,
+    "recall": 0.964395,
+    "roc_auc": 0.974563
+  }
+}

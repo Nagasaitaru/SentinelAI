@@ -1,0 +1,51 @@
+
+{% extends "base.html" %}
+{% block title %}Live Detection{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <div><div class="eyebrow">DATASET STREAM</div><h1>Live Detection</h1>
+  <p>Traffic records are read automatically from the bundled DrDoS_DNS_R2l_imbala.csv dataset.</p></div>
+  <button id="toggleBtn" class="primary" onclick="toggleStream()">Start Dataset Stream →</button>
+</section>
+<section class="panel">
+  <div class="live-head"><div class="live-indicator"><span></span> DATASET DETECTION ENGINE READY</div><div class="mono tiny">FIXED DATASET • SOFT VOTING • 0.50</div></div>
+  <div id="liveResult" class="live-result">Press Start Dataset Stream to analyze real rows from the project dataset.</div>
+  <div class="stream-box" id="streamBox"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+let running=false, timer=null, row=1, total=0;
+async function init(){ total=(await api('/api/dataset-info')).rows; }
+async function step(){
+ if(row>total) row=1;
+ try{
+  const d=await api('/api/dataset-row/'+row);
+  const r=d.prediction;
+  document.getElementById('liveResult').innerHTML=
+   `<span class="${r.label?'attack-text':'normal-text'}">${r.prediction.toUpperCase()}</span>
+    <strong>${r.attack_probability.toFixed(2)}%</strong> attack probability
+    <span class="risk ${r.risk.toLowerCase()}">${r.risk}</span>
+    <span class="mono tiny">ROW ${d.row} • ${d.original_label}</span>`;
+  const item=document.createElement('div'); item.className='stream-row';
+  item.innerHTML=`<span class="mono">${r.timestamp}</span><span>Row ${d.row}</span><span>${r.prediction} • ${r.attack_probability.toFixed(2)}%</span><span>${d.original_label} • ${r.trust_score.toFixed(2)}% trust</span>`;
+  document.getElementById('streamBox').prepend(item);
+  while(document.getElementById('streamBox').children.length>30)
+    document.getElementById('streamBox').lastElementChild.remove();
+  row++;
+ }catch(e){toast(e.message,true);toggleStream();}
+}
+function toggleStream(){
+ running=!running;
+ const b=document.getElementById('toggleBtn');
+ if(running){
+  b.textContent='Stop Dataset Stream ■'; b.className='secondary';
+  step(); timer=setInterval(step,1500);
+ }else{
+  b.textContent='Start Dataset Stream →'; b.className='primary';
+  clearInterval(timer);
+ }
+}
+init();
+</script>
+{% endblock %}

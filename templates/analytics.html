@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<section class="page-intro"><div><div class="eyebrow">SECURITY ANALYTICS</div><h1>Analytics</h1><p>Current detection distribution, risk levels and model contribution.</p></div></section>
+<section class="two-col">
+  <div class="panel"><div class="panel-head"><div><h2>Detection Distribution</h2><p>Normal vs Attack distribution across the complete bundled dataset.</p></div></div><div id="dist" class="donut-wrap"><div class="donut"><span id="attackPct">0%</span></div><div class="legend" id="legend"></div></div></div>
+  <div class="panel"><div class="panel-head"><div><h2>Model Contribution</h2><p>Average attack probabilities from the three deployed learners.</p></div></div><div id="contribution"></div></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function analytics(){
+ const distribution = await api('/api/detection-distribution');
+ const normal = Number(distribution.normal || 0);
+ const attacks = Number(distribution.attacks || 0);
+ const total = Number(distribution.total || 0);
+ const normalPct = Number(distribution.normal_percent || 0);
+ const attackPct = Number(distribution.attack_percent || 0);
+
+ document.getElementById('attackPct').textContent=Math.round(attackPct)+'%';
+ document.querySelector('.donut').style.background =
+   `conic-gradient(var(--green) 0 ${normalPct}%, var(--red) ${normalPct}% 100%)`;
+
+ document.getElementById('legend').innerHTML=`
+   <div>NORMAL <b>${normal.toLocaleString()}</b></div>
+   <div>ATTACK <b>${attacks.toLocaleString()}</b></div>
+   <div>TOTAL <b>${total.toLocaleString()}</b></div>`;
+
+ // Model contribution remains based on predictions made in this session.
+ const h=await api('/api/history');
+ const sessionTotal=h.length;
+ const sums={'Random Forest':0,'Extra Trees':0,'Logistic Regression':0};
+ h.forEach(x=>Object.keys(sums).forEach(k=>sums[k]+=x.base_models?.[k]||0));
+ const rows=Object.entries(sums).map(([k,v])=>[k,sessionTotal?v/sessionTotal:0]);
+ document.getElementById('contribution').innerHTML=rows.map(([k,v])=>`
+   <div class="bar-row big"><span>${k}</span><div><i style="width:${v}%"></i></div><b>${v.toFixed(1)}%</b></div>
+ `).join('');
+}
+analytics(); setInterval(analytics,5000);
+</script>
+{% endblock %}

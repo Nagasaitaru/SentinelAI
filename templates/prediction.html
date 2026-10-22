@@ -1,0 +1,50 @@
+
+{% extends "base.html" %}
+{% block title %}Prediction{% endblock %}
+{% block content %}
+<section class="page-intro"><div><div class="eyebrow">DATASET INFERENCE</div><h1>Prediction</h1>
+<p>Select a row from the bundled dataset. The supplied PKL loads its 14 fixed model features automatically.</p></div></section>
+<section class="two-col">
+ <div class="panel">
+  <div class="panel-head"><div><h2>Dataset Row</h2><p>No manual feature entry.</p></div></div>
+  <div class="row-selector"><label>Dataset row number</label><input id="rowNumber" type="number" min="1" value="1"><button class="primary" onclick="runRow()">Run Prediction →</button></div>
+  <div id="rowInfo" class="row-info"></div>
+  <div class="feature-schema-note">Model schema: 14 fixed features from the bundled dataset. <b>flow_bytes_per_seconds</b> is not used by the supplied PKL.</div><div id="featurePreview" class="feature-preview"></div>
+ </div>
+ <div class="panel result-panel">
+  <div class="panel-head"><div><h2>Prediction Result</h2><p>Soft-voting ensemble output</p></div></div>
+  <div id="resultEmpty" class="result-empty">Choose a dataset row and run prediction.</div>
+  <div id="result" class="hidden">
+   <div id="resultLabel" class="result-label">ATTACK</div>
+   <div class="prob-big" id="probBig">0%</div>
+   <div class="result-meta"><span>Risk</span><strong id="resultRisk">HIGH</strong></div>
+   <div class="result-meta"><span>Trust score</span><strong id="trustScore">0</strong></div>
+   <div class="model-bars" id="modelBars"></div>
+  </div>
+ </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function runRow(){
+ try{
+  const row=Math.max(1,parseInt(document.getElementById('rowNumber').value||1));
+  const d=await api('/api/dataset-row/'+row);
+  setText('rowInfo','Row '+d.row+' • Original label: '+d.original_label);
+  document.getElementById('featurePreview').innerHTML=d.features.map((x,i)=>
+    `<div><span>${d.feature_names[i]}</span><b>${x}</b></div>`).join('');
+  const r=d.prediction;
+  document.getElementById('resultEmpty').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  const label=document.getElementById('resultLabel');
+  label.textContent=r.prediction.toUpperCase(); label.className='result-label '+(r.label?'attack-text':'normal-text');
+  setText('probBig',r.attack_probability.toFixed(2)+'%');
+  setText('resultRisk',r.risk); setText('trustScore',r.trust_score.toFixed(2)+'%');
+  document.getElementById('modelBars').innerHTML=Object.entries(r.base_models).map(([k,v])=>
+    `<div class="bar-row"><span>${k}</span><div><i style="width:${v}%"></i></div><b>${v.toFixed(2)}%</b></div>`).join('');
+  toast('Prediction completed');
+ }catch(e){toast(e.message,true)}
+}
+runRow();
+</script>
+{% endblock %}

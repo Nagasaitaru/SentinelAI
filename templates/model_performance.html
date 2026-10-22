@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Model Performance{% endblock %}
+{% block content %}
+<section class="page-intro"><div><div class="eyebrow">MODEL BENCHMARKS</div><h1>Model Performance</h1><p>Comparison of the classifiers reported in the uploaded paper and current deployed ensemble metrics.</p></div></section>
+<section class="panel">
+  <div class="panel-head"><div><h2>Performance Comparison</h2><p>Accuracy, F1, Recall and ROC-AUC</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>MODEL</th><th>ACCURACY</th><th>F1</th><th>RECALL</th><th>ROC-AUC</th></tr></thead><tbody id="metricsTable"></tbody></table></div>
+</section>
+<section class="stat-grid three" id="ensembleCards"></section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadMetrics(){
+ const data=await api('/api/model-metrics');
+ const rows=Object.entries(data);
+ document.getElementById('metricsTable').innerHTML=rows.map(([name,m])=>`
+ <tr><td>${name}</td><td>${pct(m.accuracy)}</td><td>${dec(m.f1)}</td><td>${dec(m.recall)}</td><td>${dec(m.roc_auc)}</td></tr>`).join('');
+ const e=data.ensemble;
+ if(e) document.getElementById('ensembleCards').innerHTML=`
+ <div class="stat-card metric"><div class="card-label">ENSEMBLE ACCURACY</div><div class="metric-value">${pct(e.accuracy)}</div></div>
+ <div class="stat-card metric"><div class="card-label">ENSEMBLE F1</div><div class="metric-value">${dec(e.f1)}</div></div>
+ <div class="stat-card metric"><div class="card-label">ENSEMBLE ROC-AUC</div><div class="metric-value">${dec(e.roc_auc)}</div></div>`;
+}
+loadMetrics();
+</script>
+{% endblock %}
